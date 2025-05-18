@@ -32,15 +32,9 @@ def load_scaler():
 def load_data():
     return pd.read_csv("X_test.csv")
 
-@st.cache_resource
-def load_shap_explainer():
-    with open("shap_explainer.pkl", "rb") as f:
-        return joblib.load(f)
-
 model = load_model()
 scaler = load_scaler()
 X_test = load_data()
-shap_explainer = load_shap_explainer()
 
 # Load column structure (for manual input alignment)
 xtrain_columns = pd.read_csv("X_train_columns.csv").columns.tolist()
@@ -75,20 +69,20 @@ if input_mode == "Manual Entry":
     release_quarter = st.sidebar.selectbox("Release Quarter", [1, 2, 3, 4])
 
     input_dict = {
-        'averageRating': avg_rating,
-        'budget': budget,
-        'run_time': runtime,
-        'release_month': release_month,
-        'release_quarter': release_quarter
-    }
-
+    'averageRating': avg_rating,
+    'budget': budget,
+    'run_time (minutes)': runtime,
+    'release_month': release_month,
+    'release_quarter': release_quarter
+}
+    
     user_input_df = pd.DataFrame([input_dict])
     user_input_df = user_input_df.reindex(columns=xtrain_columns, fill_value=0)
     user_input_scaled = scaler.transform(user_input_df)
 
 else:
     st.sidebar.success("✅ Using sample data")
-    selected_index = st.sidebar.slider("Choose test sample index", 0, len(X_test)-1, 0)
+    selected_index = 2  # Fixed index to match lime_explanation_2.html
     user_input_df = X_test.iloc[[selected_index]]
     user_input_scaled = scaler.transform(user_input_df)
 
@@ -108,33 +102,39 @@ used_budget = user_input_df['budget'].values[0]
 roi = (predicted_revenue - used_budget) / used_budget
 st.metric("📈 ROI", f"{roi * 100:.2f}%")
 
+st.success(f"✅ Predicted Revenue: ${predicted_revenue:,.0f}")
+st.markdown(f"💰 Estimated ROI: {roi:.2f}x")
+
 # -------------------------------
-# ✅ EXPLAINABILITY SECTION
+# ✅ EXPLAINABILITY SECTION 
 # -------------------------------
-st.subheader("🧠 Explainability (SHAP or LIME)")
-explain_mode = st.radio("Choose method:", ["SHAP", "LIME"])
+st.subheader("🧠 Model Explainability (SHAP or LIME)")
+
+explain_mode = st.radio("Choose Explainability Method:", ["SHAP", "LIME"])
 
 if explain_mode == "SHAP":
     if input_mode == "Use Sample Data":
-        html_file = f"shap_force_plot_{selected_index}.html"
+        st.markdown("#### 🔍 SHAP Force Plot")
+        html_file = "shap_force_plot_2.html"
         try:
             with open(html_file, "r", encoding="utf-8") as f:
-                components.html(f.read(), height=400)
+                st.components.v1.html(f.read(), height=400, scrolling=True)
         except FileNotFoundError:
-            st.error("SHAP HTML file not found.")
+            st.error(f"❌ File not found: {html_file}")
     else:
-        st.info("ℹ️ SHAP is available only for sample inputs.")
+        st.info("ℹ️ SHAP visualizations are available only for sample data.")
 
 elif explain_mode == "LIME":
     if input_mode == "Use Sample Data":
-        html_file = f"lime_explanation_{selected_index}.html"
+        st.markdown("#### 🧪 LIME Explanation")
+        html_file = "lime_explanation_2.html"
         try:
             with open(html_file, "r", encoding="utf-8") as f:
-                components.html(f.read(), height=600)
+                st.components.v1.html(f.read(), height=600, scrolling=True)
         except FileNotFoundError:
-            st.error("LIME HTML file not found.")
+            st.error(f"❌ File not found: {html_file}")
     else:
-        st.info("ℹ️ LIME is available only for sample inputs.")
+        st.info("ℹ️ LIME visualizations are available only for sample data.")
 
 # -------------------------------
 # ✅ FOOTER / ATTRIBUTION
