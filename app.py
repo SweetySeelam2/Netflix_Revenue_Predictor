@@ -37,7 +37,7 @@ scaler = load_scaler()
 X_test = load_data()
 
 # Load column structure (for manual input alignment)
-xtrain_columns = pd.read_csv("X_train_columns.csv").columns.tolist()
+xtrain_columns = pd.read_csv("X_train_columns.csv", index_col=0).columns.tolist()
 
 # -------------------------------
 # ✅ HEADER
