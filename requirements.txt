@@ -10,5 +10,3 @@ matplotlib
 seaborn
 plotly
 joblib
-streamlit.components.v1
-scipy
