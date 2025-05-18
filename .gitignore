@@ -1,0 +1,22 @@
+# Ignore virtual environment
+venv/
+env/
+Predictive_revenue_env/
+
+# Python cache
+__pycache__/
+*.py[cod]
+
+# Checkpoints from Jupyter
+.ipynb_checkpoints/
+
+# Logs
+*.log
+streamlit_app.log
+
+# Ignore system files
+.DS_Store
+Thumbs.db
+
+# Ignore model explainability cache
+*.joblib
