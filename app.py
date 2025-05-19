@@ -86,7 +86,9 @@ if input_mode == "Manual Entry":
 # -------------------------------
 elif input_mode == "Use Sample Data":
     st.sidebar.success("Using test data")
-    selected_index = st.sidebar.slider("Select test sample", 0, len(X_test)-1, 0)
+    movie_titles = X_test['movie_title'].tolist() if 'movie_title' in X_test.columns else [f"Sample {i}" for i in range(len(X_test))]
+    selected_title = st.sidebar.selectbox("Select a Movie Title", movie_titles)
+    selected_index = X_test[X_test['movie_title'] == selected_title].index[0] if 'movie_title' in X_test.columns else movie_titles.index(selected_title)
     user_input_df = X_test.iloc[[selected_index]]
 
     st.subheader("Sample Input Features")
@@ -117,7 +119,7 @@ if user_input_df is not None:
     - **Budget Entered**: ${used_budget:,.0f}  
     - **Estimated ROI**: {roi:.2f}x  
 
-    This means for every 1 dollar spent, Netflix expects to return $${((roi+1)*1):.2f}. 
+    This means for every $1 spent, Netflix expects to return ${((roi+1)*1):.2f}. 
     This investment is considered **{'Profitable ✅' if roi > 0 else 'Loss-Making ❌'}**.
 
     ### Business Impact:
@@ -173,3 +175,4 @@ if user_input_df is not None:
 
 st.markdown("---")
 st.caption("© 2025 • Built by Sweety Seelam • Netflix ROI Forecast App with SHAP & LIME")
+
