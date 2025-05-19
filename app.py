@@ -34,7 +34,7 @@ def load_data():
 
 @st.cache_resource
 def load_columns():
-    return pd.read_csv("X_train_columns.csv")['0'].tolist()
+    return pd.read_csv("X_train_columns.csv").iloc[:, 0].tolist()
 
 model = load_model()
 scaler = load_scaler()
