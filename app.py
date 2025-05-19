@@ -117,7 +117,7 @@ if user_input_df is not None:
     - **Budget Entered**: ${used_budget:,.0f}  
     - **Estimated ROI**: {roi:.2f}x  
 
-    This means for every $1 spent, Netflix expects to return ${((roi+1)*1):.2f}. 
+    This means for every 1 dollar spent, Netflix expects to return $${((roi+1)*1):.2f}. 
     This investment is considered **{'Profitable ✅' if roi > 0 else 'Loss-Making ❌'}**.
 
     ### Business Impact:
