@@ -1,7 +1,7 @@
 [theme]
 base = "light"
-primaryColor = "#e50914"                # Netflix red for buttons and sliders
-backgroundColor = "#ffffff"             # White background for the main content area
-secondaryBackgroundColor = "#000000"    # Sidebar solid black
-textColor = "#ffffff"                   # Sidebar white text for visibility
+primaryColor = "#e50914"
+backgroundColor = "#ffffff"             # Main content background: white
+secondaryBackgroundColor = "#000000"    # Sidebar background: black
+textColor = "#000000"                   # Text in main content: black (THIS is the fix)
 font = "sans serif"
