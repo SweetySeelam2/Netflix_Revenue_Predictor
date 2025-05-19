@@ -6,9 +6,10 @@ import shap
 import lime.lime_tabular
 import matplotlib.pyplot as plt
 import streamlit.components.v1 as components
+import os
 
 # -------------------------------
-# ✅ PAGE CONFIG: Dark Netflix Theme
+# ✅ PAGE CONFIG
 # -------------------------------
 st.set_page_config(
     page_title="🎬 Netflix Revenue Forecast & ROI App",
@@ -16,33 +17,28 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
-# Dark theme styling (custom CSS)
+# -------------------------------
+# ✅ DARK THEME - FIXED SIDEBAR
+# -------------------------------
 st.markdown("""
-    <style>
-        body, .reportview-container, .main {
-            background-color: #0e0e0e;
-            color: #ffffff;
-        }
-        .st-bb, .st-at, .st-cf, .st-cg, .st-ci {
-            background-color: #0e0e0e;
-        }
-        h1, h2, h3, h4 {
-            color: #e50914;
-        }
-        .stButton>button {
-            color: white;
-            background-color: #e50914;
-        }
-        .stSlider > div {
-            color: white;
-        }
-        .stSelectbox > div {
-            color: black;
-        }
-        .metric-label, .metric-value {
-            font-weight: bold;
-        }
-    </style>
+<style>
+body, .main {
+    background-color: #0e0e0e;
+    color: #ffffff;
+}
+h1, h2, h3, h4 {
+    color: #e50914;
+}
+.stButton>button {
+    background-color: #e50914;
+    color: white;
+    border: none;
+}
+section[data-testid="stSidebar"] {
+    background-color: #f9f9f9;
+    color: #000;
+}
+</style>
 """, unsafe_allow_html=True)
 
 # -------------------------------
@@ -90,7 +86,7 @@ input_mode = st.sidebar.radio("Select input method:", ["Manual Entry", "Use Samp
 user_input_df = None
 
 # -------------------------------
-# ✅ MANUAL ENTRY PAGE
+# ✅ MANUAL ENTRY MODE
 # -------------------------------
 if input_mode == "Manual Entry":
     st.sidebar.subheader("🖊️ Manual Input")
@@ -115,7 +111,7 @@ if input_mode == "Manual Entry":
         user_input_df = pd.DataFrame([input_dict], columns=xtrain_columns).fillna(0)
 
 # -------------------------------
-# ✅ SAMPLE DATA PAGE
+# ✅ SAMPLE DATA MODE
 # -------------------------------
 elif input_mode == "Use Sample Data":
     st.sidebar.success("✅ Using test data")
@@ -123,26 +119,23 @@ elif input_mode == "Use Sample Data":
     user_input_df = X_test.iloc[[selected_index]]
 
     st.subheader("📥 Sample Input Features")
-    st.dataframe(user_input_df, use_container_width=True)
+    cols_to_display = ['run_time (minutes)', 'budget', 'domestic_revenue', 'international_revenue', 'averageRating']
+    sample_display_df = user_input_df[cols_to_display]
+    st.dataframe(sample_display_df, use_container_width=True)
 
 # -------------------------------
-# ✅ PREDICTION + ROI
+# ✅ REVENUE + ROI PREDICTION
 # -------------------------------
 if user_input_df is not None:
     st.subheader("🎯 Predicted Worldwide Revenue & ROI")
-    user_input_scaled = scaler.transform(user_input_df)
     log_pred = model.predict(user_input_df)[0]
     predicted_revenue = np.expm1(log_pred)
-
-    col1, col2 = st.columns(2)
-    col1.metric("💵 Revenue Prediction", f"${predicted_revenue:,.0f}")
     used_budget = user_input_df['budget'].values[0]
     roi = (predicted_revenue - used_budget) / used_budget
-    col2.metric("📈 ROI", f"{roi * 100:.2f}%")
 
     st.markdown(f"""
-        - 🎯 **Predicted Revenue:** ${predicted_revenue:,.0f}  
-        - 💰 **Estimated ROI:** {roi:.2f}x ({'Profitable ✅' if roi > 0 else 'Loss ❌'})
+    - 💵 **Predicted Revenue:** ${predicted_revenue:,.0f}  
+    - 📈 **Estimated ROI:** {roi:.2f}x ({'✅ Profitable' if roi > 0 else '❌ Loss'})  
     """)
 
     # -------------------------------
@@ -156,7 +149,7 @@ if user_input_df is not None:
     """)
 
     # -------------------------------
-    # ✅ EXPLAINABILITY SECTION
+    # ✅ SHAP / LIME EXPLAINABILITY
     # -------------------------------
     if input_mode == "Use Sample Data":
         st.subheader("🧠 Model Explainability (SHAP / LIME)")
@@ -164,21 +157,24 @@ if user_input_df is not None:
 
         if explain_mode == "SHAP":
             st.markdown("#### 🔍 SHAP Force Plot")
-            html_file = f"shap_force_plot_{selected_index}.html"
-            try:
-                with open(html_file, "r", encoding="utf-8") as f:
-                    components.html(f.read(), height=400, scrolling=True)
-            except FileNotFoundError:
-                st.error(f"❌ File not found: {html_file}")
+            if selected_index <= 4:
+                html_file = f"shap_force_plot_{selected_index}.html"
+                if os.path.exists(html_file):
+                    with open(html_file, "r", encoding="utf-8") as f:
+                        components.html(f.read(), height=400, scrolling=True)
+                else:
+                    st.info(f"ℹ️ SHAP plot not available for index {selected_index}.")
+            else:
+                st.info("ℹ️ SHAP plots are only available for sample indexes 0–4.")
 
         elif explain_mode == "LIME":
             st.markdown("#### 🧪 LIME Explanation")
             html_file = "lime_explanation_2.html"
-            try:
+            if os.path.exists(html_file):
                 with open(html_file, "r", encoding="utf-8") as f:
                     components.html(f.read(), height=600, scrolling=True)
-            except FileNotFoundError:
-                st.error(f"❌ File not found: {html_file}")
+            else:
+                st.error("❌ LIME explanation file not found.")
 
 # -------------------------------
 # ✅ FINAL RECOMMENDATIONS
@@ -196,4 +192,4 @@ if user_input_df is not None:
 # ✅ FOOTER
 # -------------------------------
 st.markdown("---")
-st.caption("© 2025 • Built by Sweety Seelam | Advanced ML + ROI Forecast + Explainability | Netflix Dark Mode Edition")
+st.caption("© 2025 • Built by Sweety Seelam | ML + ROI Forecast + SHAP + LIME | Netflix Dark Mode Edition")
