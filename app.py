@@ -125,8 +125,11 @@ elif input_mode == "Use Sample Data":
 # -------------------------------
 if user_input_df is not None:
     st.subheader("🎯 Predicted Worldwide Revenue & ROI")
-    log_pred = model.predict(user_input_df)[0]
+    # ✅ FIXED: Apply scaler before prediction
+    scaled_input = scaler.transform(user_input_df)
+    log_pred = model.predict(scaled_input)[0]
     predicted_revenue = np.expm1(log_pred)
+
     used_budget = user_input_df['budget'].values[0]
     roi = (predicted_revenue - used_budget) / used_budget
 
@@ -147,7 +150,7 @@ Based on the inputs provided, the model forecasts:
 - **Budget Entered**: ${used_budget:,.0f}  
 - **Return on Investment (ROI)**: {roi:.2f}x
 
-This means for every $1 spent, Netflix is expected to earn **${roi+1:.2f}** in return.  
+This means for every 1 dollar spent, Netflix is expected to earn *${roi+1:.2f}* in return.  
 This investment is considered **{"profitable ✅" if roi > 0 else "loss-making ❌"}**.
 
 #### 📈 Business Impact:
