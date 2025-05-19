@@ -7,6 +7,7 @@
 
 A full-scale AI-powered application to forecast Netflix movie revenue and ROI using real-world data, advanced ML models, and explainability tools, deployed as an interactive and business-focused Streamlit web app.
 
+----------------------------------------------------------------------------------------------------------------------------------------------
 
 ### 📌 Project Overview
 
@@ -20,11 +21,13 @@ This project addresses a real-world challenge faced by Netflix and other streami
 
 Make strategic content and budgeting decisions with confidence.
 
+----------------------------------------------------------------------------------------------------------------------------------------------
 
 ### 🚀 Live Demo
 
-🔗 Click here to launch the live Streamlit app
+🔗 Click here to launch the live Streamlit app: [https://netflixrevenuepredictor-streaming-platforms.streamlit.app/](https://netflixrevenuepredictor-streaming-platforms.streamlit.app/)
 
+----------------------------------------------------------------------------------------------------------------------------------------------
 
 ### 💡 Key Features
 
@@ -38,6 +41,7 @@ Make strategic content and budgeting decisions with confidence.
 
 💼 Strategic Simulation: Business teams can evaluate content viability, budget strategy, and expected ROI
 
+----------------------------------------------------------------------------------------------------------------------------------------------
 
 ### 📈 Model Performance (on log-transformed revenue)
 
@@ -49,11 +53,11 @@ Make strategic content and budgeting decisions with confidence.
 
 📌 What These Metrics Mean:
 
-MAE (Mean Absolute Error): On average, predictions deviate by ~0.03 log points
+- MAE (Mean Absolute Error): On average, predictions deviate by ~0.03 log points
 
-RMSE (Root Mean Squared Error): Low variance and error overall
+- RMSE (Root Mean Squared Error): Low variance and error overall
 
-R² Score: Over 99.8% of variability in revenue is explained by the model
+- R² Score: Over 99.8% of variability in revenue is explained by the model
 
 ✅ This level of performance makes the model suitable for executive-level forecasting.
 
@@ -62,47 +66,49 @@ R² Score: Over 99.8% of variability in revenue is explained by the model
 
 You can download and use this structure for manual predictions:
 
-averageRating,budget,run_time (minutes),release_month,release_quarter,release_year
-7.0,30000000,110,1,1,2015
+  averageRating,budget,run_time (minutes),release_month,release_quarter,release_year 
+  7.0,30000000,110,1,1,2015
 
 Upload the above format or use manual sliders in the app.
 
 🧠 Explainability Outputs
 
-SHAP force plots to explain feature impact on individual predictions
+- SHAP force plots to explain feature impact on individual predictions
 
-LIME explanations highlighting positive and negative contributions
+- LIME explanations highlighting positive and negative contributions
 
-All explainability visuals are based on sample index 2.
+- All explainability visuals are based on sample index 2.
 
+----------------------------------------------------------------------------------------------------------------------------------------------
 
 ### 📊 Visual Explainability: SHAP & LIME
 
-SHAP Summary Plot: Highlights top features like international_revenue, domestic_revenue, and run_time
+- SHAP Summary Plot: Highlights top features like international_revenue, domestic_revenue, and run_time
 
-SHAP Force Plot: Shows how each feature pushed a specific prediction higher or lower
+- SHAP Force Plot: Shows how each feature pushed a specific prediction higher or lower
 
-LIME HTML: Visualizes the individual feature influence on each prediction
+- LIME HTML: Visualizes the individual feature influence on each prediction
 
 These tools provide interpretability, trust, and clarity for non-technical stakeholders.
 
+----------------------------------------------------------------------------------------------------------------------------------------------
 
 ### 📂 Folder Structure
 
 Netflix-Revenue-streamlit/                                           
-├── app.py                       # Streamlit front-end app                                        
-├── model_xgb.pkl                # Trained XGBoost model                                                             
-├── scaler.pkl                   # StandardScaler                                                                     
-├── shap_explainer.pkl           # SHAP cached explainer                                       
-├── X_train_columns.csv          # Column reference                                               
-├── X_test.csv                   # Sample test data                                                           
-├── shap_force_plot_0.html       # SHAP HTML example                                                                                                         
-├── lime_explanation_0.html      # LIME HTML example                                                               
-├── Netflix_Content_Revenue.ipynb # Jupyter Notebook analysis                                                                          
-├── requirements.txt             # Environment dependencies                                                                  
-├── LICENSE                      # MIT License                                                                                                  
-└── README.md                    # Project documentation                                                      
+├── app.py                                              # Streamlit front-end app                                                        
+├── model_xgb.pkl                                       # Trained XGBoost model                                                                                                    
+├── scaler.pkl                                          # StandardScaler                                                                                                                 
+├── shap_explainer.pkl                                  # SHAP cached explainer                                                                       
+├── X_train_columns.csv                                 # Column reference                                                                                    
+├── X_test.csv                                          # Sample test data                                                                                                   
+├── lime_explanation_0.html                             # LIME HTML example                                                                                          
+├── Netflix_Content_Revenue.ipynb                       # Jupyter Notebook analysis                                                                                          
+├── requirements.txt                                    # Environment dependencies                                                                                 
+├── LICENSE                                             # MIT License                                                                                                                   
+└── README.md                                           # Project documentation                                                                 
 
+----------------------------------------------------------------------------------------------------------------------------------------------
 
 ### 💼 Business Value
 
@@ -122,6 +128,7 @@ For Netflix and similar platforms, this model serves as a powerful tool to:
 
 Using this model at scale can help Netflix optimize $100M+ annually in forecasting reliability, smarter budgeting, and content selection.
 
+----------------------------------------------------------------------------------------------------------------------------------------------
 
 ### 💼 Business Recommendations
 
@@ -133,25 +140,28 @@ Using this model at scale can help Netflix optimize $100M+ annually in forecasti
 
 🗓 Consider release timing and average ratings to improve expected ROI.
 
+----------------------------------------------------------------------------------------------------------------------------------------------
 
 ### 🧪 Technologies Used
 
-Python, Pandas, NumPy, Matplotlib
+- Python, Pandas, NumPy, Matplotlib
 
-XGBoost, Random Forest, Scikit-learn
+- XGBoost, Random Forest, Scikit-learn
 
-SHAP, LIME, Joblib
+- SHAP, LIME, Joblib
 
-Streamlit (deployment), Jupyter (EDA/Modeling)
+- Streamlit (deployment), Jupyter (EDA/Modeling)
 
+----------------------------------------------------------------------------------------------------------------------------------------------
 
 ### ⚙️ How to Run Locally
 
-git clone https://github.com/SweetySeelam2/Netflix_Revenue_Predictor.git                                                                                
-cd Netflix-Revenue-streamlit                                                  
-pip install -r requirements.txt                                                
-streamlit run app.py                                        
+1. git clone https://github.com/SweetySeelam2/Netflix_Revenue_Predictor.git                                                                                
+2. cd Netflix-Revenue-streamlit                                                  
+3. pip install -r requirements.txt                                                
+4. streamlit run app.py                                        
 
+----------------------------------------------------------------------------------------------------------------------------------------------
 
 ### 🧠 Author
 
@@ -165,16 +175,19 @@ Sweety Seelam 🎯 Business Analyst | Aspiring Data Scientist
 
 LinkedIn : https://www.linkedin.com/in/sweetyrao670/
 
+----------------------------------------------------------------------------------------------------------------------------------------------
 
 ### 📜 License
 
 This project is licensed under the MIT License. Feel free to use, remix, and expand with attribution.
 
+----------------------------------------------------------------------------------------------------------------------------------------------
 
 ### ⭐ Show Support
 
 If this project impressed or helped you, please 🌟 star the repo and share it with your network!
 
+----------------------------------------------------------------------------------------------------------------------------------------------
 
 ### 🙌 Acknowledgements
 
