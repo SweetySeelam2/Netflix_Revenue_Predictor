@@ -1,0 +1,7 @@
+[theme]
+base="dark"
+primaryColor="#e50914"          # Netflix Red
+backgroundColor="#0e0e0e"       # Dark black background
+secondaryBackgroundColor="#1f1f1f"  # Sidebar background
+textColor="#ffffff"
+font="sans serif"
