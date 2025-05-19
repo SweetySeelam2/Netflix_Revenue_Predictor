@@ -1,4 +1,4 @@
-import streamlit as st
+import streamlit as st 
 import pandas as pd
 import numpy as np
 import joblib
@@ -138,6 +138,10 @@ if user_input_df is not None:
             if os.path.exists(html_file):
                 with open(html_file, "r", encoding="utf-8") as f:
                     components.html(f.read(), height=400, scrolling=True)
+                st.markdown("""
+                🔍 **Interpretation:** SHAP visualizes how each feature (budget, ratings, runtime) affects the revenue prediction.
+                Features in red pushed the prediction higher, while blue reduced it. This helps understand model behavior.
+                """)
             else:
                 st.info("ℹ️ SHAP plot not available for this sample.")
 
@@ -147,6 +151,11 @@ if user_input_df is not None:
             if os.path.exists(html_file):
                 with open(html_file, "r", encoding="utf-8") as f:
                     components.html(f.read(), height=600, scrolling=True)
+                st.markdown("""
+                🧪 **Interpretation:** LIME highlights the top features influencing this prediction.
+                Green bars = positive effect on revenue. Red bars = negative effect.
+                Use this to validate key drivers behind predictions.
+                """)
             else:
                 st.error("❌ LIME explanation file not found.")
 
