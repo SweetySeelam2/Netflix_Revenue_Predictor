@@ -73,17 +73,18 @@ if input_mode == "Manual Entry":
     release_year = st.sidebar.selectbox("Release Year", list(range(2001, 2021)))
 
     input_dict = {
-        'averageRating': avg_rating,
-        'budget': budget,
-        'run_time': runtime,
-        'release_month': release_month,
-        'release_quarter': release_quarter,
-        'release_year': release_year
-    }
+    'averageRating': avg_rating,
+    'budget': budget,
+    'run_time (minutes)': runtime,
+    'release_month': release_month,
+    'release_quarter': release_quarter,
+    'release_year': release_year
+}
 
-    if st.sidebar.button("Submit"):
-        empty_df = pd.DataFrame(columns=xtrain_columns)
-        user_input_df = pd.concat([empty_df, pd.DataFrame([input_dict])], ignore_index=True).fillna(0)
+if st.sidebar.button("Submit"):
+    empty_df = pd.DataFrame(columns=xtrain_columns)
+    user_input_df = pd.concat([empty_df, pd.DataFrame([input_dict])], ignore_index=True).fillna(0)
+    user_input_df = user_input_df[xtrain_columns]
 else:
     st.sidebar.success("✅ Using sample data")
     selected_index = st.sidebar.slider("Choose test sample index", 0, len(X_test)-1, 0)
@@ -95,6 +96,7 @@ else:
 # ✅ REVENUE PREDICTION
 # -------------------------------
 if user_input_df is not None:
+    user_input_df = user_input_df[xtrain_columns]
     user_input_scaled = scaler.transform(user_input_df)
     st.subheader("🎯 Predicted Worldwide Revenue")
     log_pred = model.predict(user_input_df)[0]
