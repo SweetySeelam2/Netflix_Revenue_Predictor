@@ -1,7 +1,7 @@
 [theme]
 base="light"
-primaryColor="#e50914"               # 🔴 Netflix red (buttons/sliders)
-backgroundColor="#ffffff"            # ⚪ White main background
-secondaryBackgroundColor="#000000"   # ⚫ Sidebar background
-textColor="#000000"                  # ⚫ Main text (black on white)
+primaryColor="#e50914"                # Netflix red for buttons/sliders
+backgroundColor="#ffffff"             # Main content area white
+secondaryBackgroundColor="#000000"    # Sidebar dark black
+textColor="#ffffff"                   # Sidebar text white
 font="sans serif"
