@@ -34,13 +34,12 @@ def load_data():
 
 @st.cache_resource
 def load_columns():
-    return pd.read_csv("X_train_columns.csv")
+    return pd.read_csv("X_train_columns.csv")['0'].tolist()
 
 model = load_model()
 scaler = load_scaler()
 X_test = load_data()
-xtrain_df = load_columns()
-xtrain_columns = xtrain_df.columns.tolist()
+xtrain_columns = load_columns()
 
 # -------------------------------
 # ✅ HEADER
@@ -51,7 +50,7 @@ Welcome to the **Netflix AI Revenue Optimizer**.
 Use this tool to:
 - 📈 Predict expected revenue for a new or existing movie  
 - 💰 Evaluate expected ROI  
-- 🔎 Explore model explainability via SHAP & LIME
+- 🔎 Explore model explainability via SHAP & LIME  
 """)
 
 # -------------------------------
@@ -63,13 +62,9 @@ input_mode = st.sidebar.radio("Select input method:", ["Manual Entry", "Use Samp
 # -------------------------------
 # ✅ USER INPUT: MANUAL / SAMPLE
 # -------------------------------
-user_input_scaled = None
 user_input_df = None
-submitted = True
-
 if input_mode == "Manual Entry":
     st.sidebar.subheader("📥 Manual Input")
-
     avg_rating = st.sidebar.slider("Average Rating", 1.0, 10.0, 7.0)
     budget = st.sidebar.number_input("Budget (USD)", min_value=1000000, max_value=500000000, value=30000000)
     runtime = st.sidebar.slider("Runtime (min)", 60, 200, 110)
@@ -77,33 +72,32 @@ if input_mode == "Manual Entry":
     release_quarter = st.sidebar.selectbox("Release Quarter", [1, 2, 3, 4])
     release_year = st.sidebar.selectbox("Release Year", list(range(2001, 2021)))
 
-    if st.sidebar.button("🚀 Submit to Predict"):
-        input_dict = {
-            'averageRating': avg_rating,
-            'budget': budget,
-            'run_time (minutes)': runtime,
-            'release_month': release_month,
-            'release_quarter': release_quarter,
-            'release_year': release_year
-        }
-        user_input_df = pd.DataFrame([input_dict])
-        user_input_df = user_input_df.reindex(columns=xtrain_columns, fill_value=0)
-        user_input_scaled = scaler.transform(user_input_df)
-    else:
-        submitted = False
+    input_dict = {
+        'averageRating': avg_rating,
+        'budget': budget,
+        'run_time': runtime,
+        'release_month': release_month,
+        'release_quarter': release_quarter,
+        'release_year': release_year
+    }
 
+    if st.sidebar.button("Submit"):
+        empty_df = pd.DataFrame(columns=xtrain_columns)
+        user_input_df = pd.concat([empty_df, pd.DataFrame([input_dict])], ignore_index=True).fillna(0)
 else:
     st.sidebar.success("✅ Using sample data")
-    selected_index = 2  # Match SHAP & LIME availability
+    selected_index = st.sidebar.slider("Choose test sample index", 0, len(X_test)-1, 0)
     user_input_df = X_test.iloc[[selected_index]]
-    user_input_scaled = scaler.transform(user_input_df)
+    st.markdown("### 🎬 Sample Input Features")
+    st.dataframe(user_input_df)
 
 # -------------------------------
 # ✅ REVENUE PREDICTION
 # -------------------------------
-if input_mode == "Use Sample Data" or submitted:
+if user_input_df is not None:
+    user_input_scaled = scaler.transform(user_input_df)
     st.subheader("🎯 Predicted Worldwide Revenue")
-    log_pred = model.predict(user_input_scaled)[0]
+    log_pred = model.predict(user_input_df)[0]
     predicted_revenue = np.expm1(log_pred)
     st.metric("💵 Revenue Prediction", f"${predicted_revenue:,.0f}")
 
@@ -119,17 +113,15 @@ if input_mode == "Use Sample Data" or submitted:
     st.markdown(f"💰 Estimated ROI: {roi:.2f}x")
 
     # -------------------------------
-    # ✅ INTERPRETATION
+    # ✅ Prediction Interpretation
     # -------------------------------
-    st.markdown("### 📌 Prediction Interpretation")
-    st.markdown(f"""
-    - Based on the input features, the projected revenue is **${predicted_revenue:,.0f}**.
-    - The ROI of **{roi:.2f}x** indicates a {'profitable' if roi > 0 else 'loss-making'} investment.
-    - This can help Netflix decide **which genres, budgets, and release windows** are more lucrative.
-    """)
+    st.subheader("📌 Prediction Interpretation")
+    st.markdown(f"- Based on the input features, the projected revenue is **${predicted_revenue:,.0f}**.")
+    st.markdown(f"- The ROI of **{roi:.2f}x** indicates a {'profitable' if roi > 0 else 'loss-making'} investment.")
+    st.markdown("- This can help Netflix decide which genres, budgets, and release windows are more lucrative.")
 
     # -------------------------------
-    # ✅ EXPLAINABILITY SECTION
+    # ✅ EXPLAINABILITY SECTION 
     # -------------------------------
     st.subheader("🧠 Model Explainability (SHAP or LIME)")
     explain_mode = st.radio("Choose Explainability Method:", ["SHAP", "LIME"])
@@ -137,15 +129,14 @@ if input_mode == "Use Sample Data" or submitted:
     if explain_mode == "SHAP":
         if input_mode == "Use Sample Data":
             st.markdown("#### 🔍 SHAP Force Plot")
-            html_file = "shap_force_plot_2.html"
+            html_file = f"shap_force_plot_{selected_index}.html"
             try:
                 with open(html_file, "r", encoding="utf-8") as f:
                     components.html(f.read(), height=400, scrolling=True)
             except FileNotFoundError:
-                st.error("❌ SHAP file not found.")
+                st.error(f"❌ File not found: {html_file}")
         else:
-            st.info("ℹ️ SHAP is only available for sample data.")
-
+            st.info("ℹ️ SHAP visualizations are available only for sample data.")
     elif explain_mode == "LIME":
         if input_mode == "Use Sample Data":
             st.markdown("#### 🧪 LIME Explanation")
@@ -154,21 +145,22 @@ if input_mode == "Use Sample Data" or submitted:
                 with open(html_file, "r", encoding="utf-8") as f:
                     components.html(f.read(), height=600, scrolling=True)
             except FileNotFoundError:
-                st.error("❌ LIME file not found.")
+                st.error(f"❌ File not found: {html_file}")
         else:
-            st.info("ℹ️ LIME is only available for sample data.")
+            st.info("ℹ️ LIME visualizations are available only for sample data.")
+
+    st.markdown("---")
 
     # -------------------------------
-    # ✅ BUSINESS RECOMMENDATIONS
+    # ✅ FINAL RECOMMENDATIONS
     # -------------------------------
-    st.markdown("---")
-    st.subheader("💼 Final Business Recommendations")
+    st.subheader("📋 Business Recommendations")
     st.markdown("""
-    - 🎯 Focus on movies with **higher international revenue drivers**, as they contribute the most.
-    - 🎬 Optimize **budget allocation** to balance investment and ROI potential.
-    - 📆 **Release strategies** in specific quarters/months with better historical ROI can boost success.
-    - 🧠 Adopt model-guided greenlighting of new content to **maximize revenue forecasts**.
-    """)
+- 🌍 Focus on movies with **higher international revenue drivers**, as they contribute the most.  
+- 🧾 Optimize **budget allocation** to balance investment and ROI potential.  
+- 📅 Release strategies in **specific quarters/months** with better historical ROI can boost success.  
+- 🧠 Adopt **model-guided greenlighting** of new content to **maximize revenue forecasts**.
+""")
 
 # -------------------------------
 # ✅ FOOTER / ATTRIBUTION
