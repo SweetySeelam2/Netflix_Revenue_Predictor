@@ -18,7 +18,7 @@ st.set_page_config(
 )
 
 # -------------------------------
-# ✅ DARK THEME - FIXED SIDEBAR
+# ✅ DARK THEME FIXED
 # -------------------------------
 st.markdown("""
 <style>
@@ -82,7 +82,6 @@ Use this tool to:
 # -------------------------------
 st.sidebar.header("🎛️ Input Options")
 input_mode = st.sidebar.radio("Select input method:", ["Manual Entry", "Use Sample Data"])
-
 user_input_df = None
 
 # -------------------------------
@@ -90,11 +89,9 @@ user_input_df = None
 # -------------------------------
 if input_mode == "Manual Entry":
     st.sidebar.subheader("🖊️ Manual Input")
-    col1, col2 = st.sidebar.columns(2)
-    avg_rating = col1.slider("Avg. Rating", 1.0, 10.0, 7.0)
-    runtime = col2.slider("Runtime (min)", 60, 200, 110)
+    avg_rating = st.sidebar.slider("Average Rating", 1.0, 10.0, 7.0)
+    runtime = st.sidebar.slider("Runtime (minutes)", 60, 200, 110)
     budget = st.sidebar.number_input("🎬 Budget (USD)", min_value=1000000, max_value=500000000, value=30000000)
-
     release_month = st.sidebar.selectbox("Release Month", list(range(1, 13)))
     release_quarter = st.sidebar.selectbox("Release Quarter", [1, 2, 3, 4])
     release_year = st.sidebar.selectbox("Release Year", list(range(2001, 2021)))
@@ -124,7 +121,7 @@ elif input_mode == "Use Sample Data":
     st.dataframe(sample_display_df, use_container_width=True)
 
 # -------------------------------
-# ✅ REVENUE + ROI PREDICTION
+# ✅ PREDICTION + ROI
 # -------------------------------
 if user_input_df is not None:
     st.subheader("🎯 Predicted Worldwide Revenue & ROI")
@@ -135,7 +132,7 @@ if user_input_df is not None:
 
     st.markdown(f"""
     - 💵 **Predicted Revenue:** ${predicted_revenue:,.0f}  
-    - 📈 **Estimated ROI:** {roi:.2f}x ({'✅ Profitable' if roi > 0 else '❌ Loss'})  
+    - 📈 **Estimated ROI (Return on Investment):** {roi:.2f}x ({'✅ Profitable' if roi > 0 else '❌ Loss-Making'})  
     """)
 
     # -------------------------------
@@ -143,10 +140,22 @@ if user_input_df is not None:
     # -------------------------------
     st.subheader("📌 Prediction Interpretation")
     st.markdown(f"""
-    - Based on the input features, the projected revenue is **${predicted_revenue:,.0f}**.
-    - The ROI of **{roi:.2f}x** indicates a {'profitable' if roi > 0 else 'loss-making'} investment.
-    - Use these insights to guide budget allocation and release strategy.
-    """)
+**Worldwide Revenue** represents the total projected box office earnings across global markets.  
+Based on the inputs provided, the model forecasts:
+
+- **Total Revenue**: ${predicted_revenue:,.0f}  
+- **Budget Entered**: ${used_budget:,.0f}  
+- **Return on Investment (ROI)**: {roi:.2f}x
+
+This means for every $1 spent, Netflix is expected to earn **${roi+1:.2f}** in return.  
+This investment is considered **{"profitable ✅" if roi > 0 else "loss-making ❌"}**.
+
+#### 📈 Business Impact:
+- A **profitable** movie with 2.5x ROI could generate **${(roi * used_budget):,.0f} in earnings**, boosting quarterly targets.  
+- A **loss-making** movie with -0.5x ROI would return only **${predicted_revenue:,.0f}**, losing nearly **{abs(roi)*100:.1f}%** of the investment.
+
+Data-backed decisions like these improve content ROI, budget planning, and viewer satisfaction.
+""")
 
     # -------------------------------
     # ✅ SHAP / LIME EXPLAINABILITY
@@ -157,15 +166,12 @@ if user_input_df is not None:
 
         if explain_mode == "SHAP":
             st.markdown("#### 🔍 SHAP Force Plot")
-            if selected_index <= 4:
-                html_file = f"shap_force_plot_{selected_index}.html"
-                if os.path.exists(html_file):
-                    with open(html_file, "r", encoding="utf-8") as f:
-                        components.html(f.read(), height=400, scrolling=True)
-                else:
-                    st.info(f"ℹ️ SHAP plot not available for index {selected_index}.")
+            html_file = f"shap_force_plot_{selected_index}.html"
+            if os.path.exists(html_file):
+                with open(html_file, "r", encoding="utf-8") as f:
+                    components.html(f.read(), height=400, scrolling=True)
             else:
-                st.info("ℹ️ SHAP plots are only available for sample indexes 0–4.")
+                st.info("ℹ️ SHAP plot not found for this sample index.")
 
         elif explain_mode == "LIME":
             st.markdown("#### 🧪 LIME Explanation")
@@ -192,4 +198,4 @@ if user_input_df is not None:
 # ✅ FOOTER
 # -------------------------------
 st.markdown("---")
-st.caption("© 2025 • Built by Sweety Seelam | ML + ROI Forecast + SHAP + LIME | Netflix Dark Mode Edition")
+st.caption("© 2025 • Built by Sweety Seelam | Advanced ML + ROI Forecast + SHAP + LIME | Netflix Dark Mode Edition")
