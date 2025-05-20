@@ -31,15 +31,15 @@ Make strategic content and budgeting decisions with confidence.
 
 ### 💡 Key Features
 
-🔮 Revenue Forecasting: Predict log-transformed worldwide revenue with industry-leading accuracy
+🔮 Revenue Forecasting: Predicts expected worldwide revenue based on movie attributes.
 
-📊 ROI Estimation: Automatically calculate ROI and assess financial viability
+📊 ROI Estimation: Calculates the expected return on investment (ROI) to determine profitability.
 
-🧠 Explainability: Use SHAP (global & local) and LIME for full model transparency
+🧠 Explainability: SHAP and LIME plots highlight how features affect predictions.
 
-🧪 Test Scenarios: Input manual values or explore sample predictions from real Netflix titles
+🧪 Interactive Input: Two modes — Manual Entry and Use Sample Data.
 
-💼 Strategic Simulation: Business teams can evaluate content viability, budget strategy, and expected ROI
+💼 Business Recommendations:** Auto-generated suggestions based on prediction results.
 
 ----------------------------------------------------------------------------------------------------------------------------------------------
 
@@ -61,33 +61,33 @@ Make strategic content and budgeting decisions with confidence.
 
 ✅ This level of performance makes the model suitable for executive-level forecasting.
 
+---------------------------------------------------------------------------------------------------------------------------------------------
 
-📥 Sample Input File for Manual Prediction
+### 🛠️ How It Works
 
-You can download and use this structure for manual predictions:
+### Input Options
+- **Manual Entry:** Enter movie details like average rating, runtime, budget, release month/year.
+- **Use Sample Data:** Choose from test data to view predictions instantly.
 
-  averageRating,budget,run_time (minutes),release_month,release_quarter,release_year 
-  7.0,30000000,110,1,1,2015
+### Prediction Output
+- **Predicted Revenue** is displayed in USD
+- **Estimated ROI** is calculated as a multiplier (e.g., `1.5x` means 50% return)
 
-Upload the above format or use manual sliders in the app.
+> A negative ROI (e.g., `-0.5x`) indicates a potential loss.
 
-🧠 Explainability Outputs
+-------------------------------------------------------------------------------------------------------------------------------------------
 
-- SHAP force plots to explain feature impact on individual predictions
+### 🧠 SHAP & LIME Explainability
 
-- LIME explanations highlighting positive and negative contributions
+To ensure fast performance, **SHAP and LIME plots are pre-generated only for test samples with index 0 to 4**. These files are:
+- `shap_force_plot_0.html` through `shap_force_plot_4.html`
+- `lime_explanation_2.html` (shared fallback)
 
-- All explainability visuals are based on sample index 2.
+When a supported index is selected, users can view:
+- **SHAP Force Plot:** Shows how each feature contributes to the prediction
+- **LIME Bar Plot:** Shows top features influencing the outcome
 
-----------------------------------------------------------------------------------------------------------------------------------------------
-
-### 📊 Visual Explainability: SHAP & LIME
-
-- SHAP Summary Plot: Highlights top features like international_revenue, domestic_revenue, and run_time
-
-- SHAP Force Plot: Shows how each feature pushed a specific prediction higher or lower
-
-- LIME HTML: Visualizes the individual feature influence on each prediction
+> For other indexes, an info message is shown: “SHAP plot not available for this sample.”
 
 These tools provide interpretability, trust, and clarity for non-technical stakeholders.
 

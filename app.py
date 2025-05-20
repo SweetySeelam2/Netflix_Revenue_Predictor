@@ -86,7 +86,7 @@ if input_mode == "Manual Entry":
 # -------------------------------
 elif input_mode == "Use Sample Data":
     st.sidebar.success("Using test data")
-    movie_titles = X_test['movie_title'].tolist() if 'movie_title' in X_test.columns else [f"Sample {i}" for i in range(len(X_test))]
+    movie_titles = X_test['movie_title'].dropna().tolist()
     selected_title = st.sidebar.selectbox("Select a Movie Title", movie_titles)
     selected_index = X_test[X_test['movie_title'] == selected_title].index[0] if 'movie_title' in X_test.columns else movie_titles.index(selected_title)
     user_input_df = X_test.iloc[[selected_index]]
@@ -102,7 +102,7 @@ if user_input_df is not None:
     st.subheader("Predicted Worldwide Revenue & ROI")
     scaled_input = scaler.transform(user_input_df)
     log_pred = model.predict(scaled_input)[0]
-    predicted_revenue = np.expm1(log_pred)
+    predicted_revenue = np.expm1(log_pred) * 1_000_000
     used_budget = user_input_df['budget'].values[0]
     roi = (predicted_revenue - used_budget) / used_budget
 
@@ -175,4 +175,3 @@ if user_input_df is not None:
 
 st.markdown("---")
 st.caption("© 2025 • Built by Sweety Seelam • Netflix ROI Forecast App with SHAP & LIME")
-
