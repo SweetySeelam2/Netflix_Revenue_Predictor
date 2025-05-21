@@ -104,67 +104,84 @@ elif input_mode == "Use Sample Data":
 # -------------------------------
 if user_input_df is not None:
     st.subheader("📊 Predicted Worldwide Revenue & ROI")
-    scaled_input = scaler.transform(user_input_df)
-    log_pred = model.predict(scaled_input)[0]
-    predicted_revenue = np.expm1(log_pred)  # ✅ FIXED: no * 1_000_000
-    used_budget = user_input_df['budget'].values[0]
-    roi = (predicted_revenue - used_budget) / used_budget
 
-    st.markdown(f"""
-    - 💵 **Predicted Revenue:** ${predicted_revenue:,.0f}  
-    - 📈 **Estimated ROI (Return on Investment):** {roi:.2f}x ({'✅ Profitable' if roi > 0 else '❌ Loss-Making'})  
-    """)
+    try:
+        # 1. Align features
+        user_input_df = user_input_df[xtrain_columns]
 
-    st.subheader("🧠 Prediction Interpretation")
-    st.markdown(f"""
-    **Worldwide Revenue** is the total forecasted income across global markets. 
+        # 2. Scale input
+        scaled_input = scaler.transform(user_input_df)
 
-    - **Predicted Revenue**: ${predicted_revenue:,.0f}  
-    - **Budget Entered**: ${used_budget:,.0f}  
-    - **Estimated ROI**: {roi:.2f}x  
+        # 3. Predict (log-scale) and convert back
+        log_pred = model.predict(scaled_input)[0]
+        predicted_revenue = np.expm1(log_pred)
 
-    For every $1 spent, Netflix expects to return ${((roi+1)*1):.2f}.  
-    This investment is considered **{'Profitable ✅' if roi > 0 else 'Loss-Making ❌'}**.
+        # 4. Calculate ROI
+        used_budget = user_input_df["budget"].values[0]
+        roi = (predicted_revenue - used_budget) / used_budget
 
-    ### 📈 Business Impact:
-    - Estimated gain/loss: ${roi * used_budget:,.0f}  
-    - ROI translates to a {abs(roi)*100:.2f}% {'gain' if roi > 0 else 'loss'} on investment.
-    """)
+        # 5. Display results
+        st.markdown(f"""
+        - 💵 **Predicted Revenue:** ${predicted_revenue:,.0f}  
+        - 📈 **Estimated ROI (Return on Investment):** {roi:.2f}x ({'✅ Profitable' if roi > 0 else '❌ Loss-Making'})  
+        """)
 
-    # -------------------------------
-    # ✅ SHAP / LIME (Sample Data Only)
-    # -------------------------------
-    if input_mode == "Use Sample Data":
-        st.subheader("📌 Model Explainability (SHAP / LIME)")
-        explain_mode = st.radio("Choose Method:", ["SHAP", "LIME"], horizontal=True)
+        # 6. Business Interpretation
+        st.subheader("🧠 Prediction Interpretation")
+        st.markdown(f"""
+        **Worldwide Revenue** is the total forecasted income across global markets.
 
-        if explain_mode == "SHAP":
-            st.markdown("#### SHAP Force Plot")
-            html_file = f"shap_force_plot_{selected_index}.html"
-            if os.path.exists(html_file):
-                with open(html_file, "r", encoding="utf-8") as f:
-                    components.html(f.read(), height=400, scrolling=True)
-                st.markdown("""
-                🔍 **Interpretation:** SHAP shows how each input feature contributes to the final prediction.
-                - Red: Positive influence
-                - Blue: Negative influence
-                """)
+        - **Predicted Revenue**: ${predicted_revenue:,.0f}  
+        - **Budget Entered**: ${used_budget:,.0f}  
+        - **Estimated ROI**: {roi:.2f}x  
+
+        For every $1 spent, Netflix expects to return **${(roi+1):.2f}**.  
+        This investment is **{'Profitable ✅' if roi > 0 else 'Loss-Making ❌'}**.
+
+        ### 📈 Business Impact:
+        - Estimated gain/loss: **${roi * used_budget:,.0f}**  
+        - ROI translates to a **{abs(roi)*100:.2f}%** {'gain' if roi > 0 else 'loss'} on investment.
+        """)
+
+        # 7. SHAP / LIME (only for sample data)
+        if input_mode == "Use Sample Data":
+            st.subheader("📌 Model Explainability (SHAP / LIME)")
+            explain_mode = st.radio("Choose Method:", ["SHAP", "LIME"], horizontal=True)
+
+            if explain_mode == "SHAP":
+                st.markdown("#### SHAP Force Plot")
+                html_file = f"shap_force_plot_{selected_index}.html"
+                if os.path.exists(html_file):
+                    with open(html_file, "r", encoding="utf-8") as f:
+                        components.html(f.read(), height=400, scrolling=True)
+                    st.markdown("""
+                    🔍 **Interpretation:** SHAP shows how each input feature contributes:
+                    - Red: Positive influence
+                    - Blue: Negative influence
+                    """)
+                else:
+                    st.info("ℹ️ SHAP plot not available for this sample.")
             else:
-                st.info("ℹ️ SHAP plot not available for this sample.")
+                st.markdown("#### LIME Explanation")
+                html_file = "lime_explanation_2.html"
+                if os.path.exists(html_file):
+                    with open(html_file, "r", encoding="utf-8") as f:
+                        components.html(f.read(), height=600, scrolling=True)
+                    st.markdown("""
+                    🧪 **Interpretation:** LIME highlights top influencing features:
+                    - Green: Increases prediction
+                    - Red: Decreases prediction
+                    """)
+                else:
+                    st.error("❌ LIME explanation file not found.")
 
-        elif explain_mode == "LIME":
-            st.markdown("#### LIME Explanation")
-            html_file = "lime_explanation_2.html"
-            if os.path.exists(html_file):
-                with open(html_file, "r", encoding="utf-8") as f:
-                    components.html(f.read(), height=600, scrolling=True)
-                st.markdown("""
-                🧪 **Interpretation:** LIME identifies top influencing features.
-                - Green: Increases prediction
-                - Red: Decreases prediction
-                """)
-            else:
-                st.error("❌ LIME explanation file not found.")
+    except KeyError as e:
+        st.error(f"⚠️ Input feature mismatch: {e}. Please check your sidebar inputs or sample data.")
+        st.stop()
+
+    except Exception as e:
+        st.error(f"🚨 Unexpected error: {e}")
+        st.stop()
 
 # -------------------------------
 # ✅ FINAL RECOMMENDATIONS
@@ -172,11 +189,11 @@ if user_input_df is not None:
 if user_input_df is not None:
     st.subheader("🔎 Business Recommendations")
     st.markdown("""
-- 🌍 Focus on **international appeal** to boost global revenue.
-- 🗓️ Optimize **release month/quarter** based on ROI trends.
-- 🧠 Use prediction insights to greenlight high-return content.
-- 💡 Avoid high-budget projects with low predicted ROI.
-""")
+    - 🌍 Focus on **international appeal** to boost global revenue.
+    - 🗓️ Optimize **release month/quarter** based on ROI trends.
+    - 🧠 Use prediction insights to greenlight high-return content.
+    - 💡 Avoid high-budget projects with low predicted ROI.
+    """)
 
 st.markdown("---")
 st.caption("© 2025 • Built by Sweety Seelam • Netflix ROI Forecast App with SHAP & LIME")
