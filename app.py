@@ -1,4 +1,4 @@
-import streamlit as st  
+import streamlit as st
 import pandas as pd
 import numpy as np
 import joblib
@@ -27,8 +27,7 @@ def load_scaler():
 
 @st.cache_resource
 def load_data():
-    df = pd.read_csv("X_test.csv")
-    return df
+    return pd.read_csv("X_test.csv")
 
 @st.cache_resource
 def load_columns():
@@ -37,8 +36,8 @@ def load_columns():
 model = load_model()
 scaler = load_scaler()
 X_test = load_data()
-X_test_full = X_test.copy()  # keep original with movie_title
 xtrain_columns = load_columns()
+X_test_full = X_test.copy()  # include movie titles
 
 # -------------------------------
 # ✅ HEADER
@@ -81,39 +80,33 @@ if input_mode == "Manual Entry":
             'release_quarter': release_quarter,
             'release_year': release_year
         }
-        user_input_df = pd.DataFrame([input_dict])
-        for col in xtrain_columns:
-            if col not in user_input_df.columns:
-                user_input_df[col] = 0
-        user_input_df = user_input_df[xtrain_columns]
+        user_input_df = pd.DataFrame([input_dict], columns=xtrain_columns).fillna(0)
 
 # -------------------------------
 # ✅ SAMPLE DATA MODE
 # -------------------------------
 elif input_mode == "Use Sample Data":
     st.sidebar.success("Using test data")
-    
     if 'movie_title' in X_test_full.columns:
         movie_titles = X_test_full['movie_title'].dropna().tolist()
         selected_title = st.sidebar.selectbox("🎬 Select Movie Title", movie_titles)
         selected_index = X_test_full[X_test_full['movie_title'] == selected_title].index[0]
-        user_input_df = X_test_full.drop(columns=['movie_title']).iloc[[selected_index]]
     else:
-        selected_index = st.sidebar.slider("Select test sample", 0, len(X_test_full)-1, 0)
-        user_input_df = X_test_full.drop(columns=['movie_title']).iloc[[selected_index]]
+        selected_index = st.sidebar.slider("Select test sample", 0, len(X_test) - 1, 0)
 
+    user_input_df = X_test.iloc[[selected_index]]
     st.subheader("📥 Sample Input Features")
     cols_to_display = ['run_time (minutes)', 'budget', 'domestic_revenue', 'international_revenue', 'averageRating']
-    st.dataframe(X_test_full.iloc[[selected_index]][cols_to_display], use_container_width=True)
-    
+    st.dataframe(user_input_df[cols_to_display], use_container_width=True)
+
 # -------------------------------
 # ✅ PREDICTION + ROI
 # -------------------------------
 if user_input_df is not None:
-    st.subheader("Predicted Worldwide Revenue & ROI")
+    st.subheader("📊 Predicted Worldwide Revenue & ROI")
     scaled_input = scaler.transform(user_input_df)
     log_pred = model.predict(scaled_input)[0]
-    predicted_revenue = np.expm1(log_pred) * 1_000_000
+    predicted_revenue = np.expm1(log_pred)  # ✅ FIXED: no * 1_000_000
     used_budget = user_input_df['budget'].values[0]
     roi = (predicted_revenue - used_budget) / used_budget
 
@@ -122,7 +115,7 @@ if user_input_df is not None:
     - 📈 **Estimated ROI (Return on Investment):** {roi:.2f}x ({'✅ Profitable' if roi > 0 else '❌ Loss-Making'})  
     """)
 
-    st.subheader("Prediction Interpretation")
+    st.subheader("🧠 Prediction Interpretation")
     st.markdown(f"""
     **Worldwide Revenue** is the total forecasted income across global markets. 
 
@@ -130,19 +123,19 @@ if user_input_df is not None:
     - **Budget Entered**: ${used_budget:,.0f}  
     - **Estimated ROI**: {roi:.2f}x  
 
-    This means for every 1 dollar spent, Netflix expects to return $${((roi+1)*1):.2f}. 
+    For every $1 spent, Netflix expects to return ${((roi+1)*1):.2f}.  
     This investment is considered **{'Profitable ✅' if roi > 0 else 'Loss-Making ❌'}**.
 
-    ### Business Impact:
-    - Expected gain/loss: ${roi * used_budget:,.0f}  
-    - ROI translates to a {abs(roi)*100:.2f}% {'gain' if roi > 0 else 'loss'} on the investment.
+    ### 📈 Business Impact:
+    - Estimated gain/loss: ${roi * used_budget:,.0f}  
+    - ROI translates to a {abs(roi)*100:.2f}% {'gain' if roi > 0 else 'loss'} on investment.
     """)
 
     # -------------------------------
     # ✅ SHAP / LIME (Sample Data Only)
     # -------------------------------
     if input_mode == "Use Sample Data":
-        st.subheader("Model Explainability (SHAP / LIME)")
+        st.subheader("📌 Model Explainability (SHAP / LIME)")
         explain_mode = st.radio("Choose Method:", ["SHAP", "LIME"], horizontal=True)
 
         if explain_mode == "SHAP":
@@ -151,7 +144,11 @@ if user_input_df is not None:
             if os.path.exists(html_file):
                 with open(html_file, "r", encoding="utf-8") as f:
                     components.html(f.read(), height=400, scrolling=True)
-                st.markdown("🔍 **Interpretation:** SHAP explains the impact of each feature on revenue prediction.")
+                st.markdown("""
+                🔍 **Interpretation:** SHAP shows how each input feature contributes to the final prediction.
+                - Red: Positive influence
+                - Blue: Negative influence
+                """)
             else:
                 st.info("ℹ️ SHAP plot not available for this sample.")
 
@@ -161,7 +158,11 @@ if user_input_df is not None:
             if os.path.exists(html_file):
                 with open(html_file, "r", encoding="utf-8") as f:
                     components.html(f.read(), height=600, scrolling=True)
-                st.markdown("🧪 **Interpretation:** LIME highlights the key influencing features for the prediction.")
+                st.markdown("""
+                🧪 **Interpretation:** LIME identifies top influencing features.
+                - Green: Increases prediction
+                - Red: Decreases prediction
+                """)
             else:
                 st.error("❌ LIME explanation file not found.")
 
@@ -169,12 +170,12 @@ if user_input_df is not None:
 # ✅ FINAL RECOMMENDATIONS
 # -------------------------------
 if user_input_df is not None:
-    st.subheader("Business Recommendations")
+    st.subheader("🔎 Business Recommendations")
     st.markdown("""
-- 🌍 Boost **international reach** to maximize global revenue.
-- 📅 Schedule releases during historically high-ROI months/quarters.
-- 🎯 Use this app's predictions to greenlight only high-potential content.
-- 💡 Cut down on risky projects by validating expected ROI before launch.
+- 🌍 Focus on **international appeal** to boost global revenue.
+- 🗓️ Optimize **release month/quarter** based on ROI trends.
+- 🧠 Use prediction insights to greenlight high-return content.
+- 💡 Avoid high-budget projects with low predicted ROI.
 """)
 
 st.markdown("---")
