@@ -27,7 +27,10 @@ def load_scaler():
 
 @st.cache_resource
 def load_data():
-    return pd.read_csv("X_test.csv")
+    df = pd.read_csv("X_test.csv")
+    return df
+
+X_test_full = X_test.copy()  # keep original with movie_title
 
 @st.cache_resource
 def load_columns():
@@ -90,20 +93,20 @@ if input_mode == "Manual Entry":
 # -------------------------------
 elif input_mode == "Use Sample Data":
     st.sidebar.success("Using test data")
-    if 'movie_title' in X_test.columns:
-        movie_titles = X_test['movie_title'].dropna().tolist()
-        selected_title = st.sidebar.selectbox("Select a Movie Title", movie_titles)
-        selected_index = X_test[X_test['movie_title'] == selected_title].index[0]
-        user_input_df = X_test.drop(columns=['movie_title']).iloc[[selected_index]]
+    
+    if 'movie_title' in X_test_full.columns:
+        movie_titles = X_test_full['movie_title'].dropna().tolist()
+        selected_title = st.sidebar.selectbox("🎬 Select Movie Title", movie_titles)
+        selected_index = X_test_full[X_test_full['movie_title'] == selected_title].index[0]
+        user_input_df = X_test_full.drop(columns=['movie_title']).iloc[[selected_index]]
     else:
-        selected_index = st.sidebar.slider("Select test sample", 0, len(X_test)-1, 0)
-        user_input_df = X_test.iloc[[selected_index]]
+        selected_index = st.sidebar.slider("Select test sample", 0, len(X_test_full)-1, 0)
+        user_input_df = X_test_full.drop(columns=['movie_title']).iloc[[selected_index]]
 
-    st.subheader("Sample Input Features")
+    st.subheader("📥 Sample Input Features")
     cols_to_display = ['run_time (minutes)', 'budget', 'domestic_revenue', 'international_revenue', 'averageRating']
-    available_cols = [col for col in cols_to_display if col in user_input_df.columns]
-    st.dataframe(user_input_df[available_cols], use_container_width=True)
-
+    st.dataframe(X_test_full.iloc[[selected_index]][cols_to_display], use_container_width=True)
+    
 # -------------------------------
 # ✅ PREDICTION + ROI
 # -------------------------------
