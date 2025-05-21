@@ -30,8 +30,6 @@ def load_data():
     df = pd.read_csv("X_test.csv")
     return df
 
-X_test_full = X_test.copy()  # keep original with movie_title
-
 @st.cache_resource
 def load_columns():
     return pd.read_csv("X_train_columns.csv").iloc[:, 0].tolist()
@@ -39,6 +37,7 @@ def load_columns():
 model = load_model()
 scaler = load_scaler()
 X_test = load_data()
+X_test_full = X_test.copy()  # keep original with movie_title
 xtrain_columns = load_columns()
 
 # -------------------------------
