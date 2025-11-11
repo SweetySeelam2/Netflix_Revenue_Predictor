@@ -128,8 +128,8 @@ if predict_clicked:
 
     st.subheader("🧠 Prediction Interpretation")
     st.write(
-        f"**Predicted Revenue:** ${predicted_revenue:,.0f}  \n"
-        f"**Budget Entered:** ${budget:,.0f}  \n"
+        f"**Predicted Revenue:** ${predicted_revenue:,.0f}  \n\n"
+        f"**Budget Entered:** ${budget:,.0f}  \n\n"
         f"**Estimated ROI:** {(f'{roi:.2f}x' if np.isfinite(roi) else '—')}"
     )
     if np.isfinite(roi):
@@ -137,7 +137,7 @@ if predict_clicked:
         tag = "Profitable ✅" if roi > 0 else "Loss-Making ❌"
         reliab = " — **Unreliable (out of range)**" if flagged else ""
         st.write(
-            f"For every **$1** spent, expected return is **${per_dollar:.2f}**.  \n"
+            f"For every **1 dollar** spent, expected return is **{per_dollar:.2f} dollar**.  \n\n"
             f"This investment is **{tag}{reliab}**."
         )
     else:
